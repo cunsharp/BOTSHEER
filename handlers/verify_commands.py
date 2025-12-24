@@ -647,8 +647,14 @@ async def verify6_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db
         return
 
     verification_id = MilitaryVerifier.parse_verification_id(url)
-    if not verification_id:
-        await update.message.reply_text("无效的 SheerID 链接，请检查后重试。")
+    program_id = MilitaryVerifier.parse_program_id(url)
+    
+    if not verification_id or not program_id:
+        await update.message.reply_text(
+            "无效的 SheerID 链接，请检查后重试。\n\n"
+            "链接格式应为：\n"
+            "https://services.sheerid.com/verify/{programId}/?verificationId={id}"
+        )
         return
 
     if not db.deduct_balance(user_id, VERIFY_COST):
@@ -668,7 +674,7 @@ async def verify6_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db
 
     try:
         async with semaphore:
-            verifier = MilitaryVerifier(verification_id)
+            verifier = MilitaryVerifier(verification_id, program_id)
             result = await asyncio.to_thread(verifier.verify)
 
         db.add_verification(

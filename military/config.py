@@ -1,8 +1,5 @@
 """军人认证配置"""
 
-# SheerID 配置
-PROGRAM_ID = "YOUR_PROGRAM_ID_HERE"  # 需要从 ChatGPT 军人认证页面获取
-
 # 军人状态选项
 MILITARY_STATUS_OPTIONS = [
     "VETERAN",      # 退伍军人

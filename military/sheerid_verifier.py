@@ -8,7 +8,6 @@ from typing import Dict, Any, Optional
 import httpx
 
 from .config import (
-    PROGRAM_ID,
     DEFAULT_MILITARY_STATUS,
     MILITARY_ORGANIZATIONS,
     METADATA_FLAGS,
@@ -20,8 +19,9 @@ from .name_generator import generate_name, generate_email
 class SheerIDVerifier:
     """SheerID 军人认证处理器"""
 
-    def __init__(self, verification_id: str):
+    def __init__(self, verification_id: str, program_id: str):
         self.verification_id = verification_id
+        self.program_id = program_id
         self.base_url = "https://services.sheerid.com/rest/v2"
 
     @staticmethod
@@ -38,6 +38,15 @@ class SheerIDVerifier:
             if match:
                 return match.group(1)
         
+        return None
+
+    @staticmethod
+    def parse_program_id(url: str) -> Optional[str]:
+        """从 URL 中解析 programId"""
+        pattern = r'/verify/([a-f0-9]+)'
+        match = re.search(pattern, url)
+        if match:
+            return match.group(1)
         return None
 
     def _generate_birth_date(self) -> str:
@@ -74,7 +83,7 @@ class SheerIDVerifier:
             "Content-Type": "application/json;charset=UTF-8",
             "Accept": "application/json, text/plain, */*",
             "Origin": "https://services.sheerid.com",
-            "Referer": f"https://services.sheerid.com/verify/{PROGRAM_ID}/"
+            "Referer": f"https://services.sheerid.com/verify/{self.program_id}/"
         }
         
         try:
@@ -130,7 +139,7 @@ class SheerIDVerifier:
             "Content-Type": "application/json;charset=UTF-8",
             "Accept": "application/json, text/plain, */*",
             "Origin": "https://services.sheerid.com",
-            "Referer": f"https://services.sheerid.com/verify/{PROGRAM_ID}/"
+            "Referer": f"https://services.sheerid.com/verify/{self.program_id}/"
         }
         
         try:
